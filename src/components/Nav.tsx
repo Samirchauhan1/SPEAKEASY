@@ -4,7 +4,7 @@ const navItems = [
   { to: '/dashboard', icon: '⊞', label: 'Home' },
   { to: '/therapy', icon: '◎', label: 'Exercises' },
   { to: '/videos', icon: '▶', label: 'Videos' },
-  { to: '/progress', icon: '◐', label: 'Progress' },
+  // { to: '/progress', icon: '◐', label: 'Progress' },
   { to: '/profile', icon: '○', label: 'Profile' },
 ]
 
