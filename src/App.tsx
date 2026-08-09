@@ -36,7 +36,9 @@ function AppShell() {
           <Route path="/exercise" element={<Exercise />} />
           <Route path="/result" element={<Result />} />
           <Route path="/videos" element={<Videos />} />
-          <Route path="/progress" element={<Progress />} />
+
+          {/* <Route path="/progress" element={<Progress />} /> */}
+          
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>

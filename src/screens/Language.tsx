@@ -35,7 +35,12 @@ export default function Language() {
           style={{ background: 'white', border: '2px solid var(--color-border)', boxShadow: '0 4px 16px rgba(107,159,212,0.06)' }}
         >
           <div className="flex items-center gap-5">
-            <div className="text-5xl">🇬🇧</div>
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center font-display font-800 text-2xl shrink-0"
+              style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+            >
+              Aa
+            </div>
             <div className="flex-1">
               <div className="font-display font-800 text-2xl text-[var(--color-text)] mb-1">English</div>
               <div className="text-sm text-[var(--color-text-muted)] font-500">
@@ -60,7 +65,12 @@ export default function Language() {
           style={{ background: 'white', border: '2px solid var(--color-border)', boxShadow: '0 4px 16px rgba(107,159,212,0.06)' }}
         >
           <div className="flex items-center gap-5">
-            <div className="text-5xl">🇮🇳</div>
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center font-display font-800 text-2xl shrink-0"
+              style={{ background: 'var(--color-accent-peach-light)', color: 'var(--color-accent-peach)' }}
+            >
+              अ
+            </div>
             <div className="flex-1">
               <div className="font-display font-800 text-2xl text-[var(--color-text)] mb-1">हिंदी</div>
               <div className="text-sm text-[var(--color-text-muted)] font-500">
