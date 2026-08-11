@@ -38,6 +38,15 @@ type Stage = 'listen' | 'record' | 'review'
 
 const maxRecordingSeconds = 8
 
+const pronunciationExamples: Record<string, string> = {
+  R: 'Rabbit',
+  L: 'Lion',
+  S: 'Sun',
+  SH: 'Ship',
+  CH: 'Chair',
+  TH: 'Think',
+}
+
 function getSpeechErrorMessage(error: string) {
   switch (error) {
     case 'not-allowed':
@@ -48,10 +57,25 @@ function getSpeechErrorMessage(error: string) {
     case 'audio-capture':
       return 'No microphone was found. Connect a microphone, then try again.'
     case 'network':
-      return 'Speech recognition needs a network connection. Check your connection and try again.'
+      return 'Live transcription could not connect. Brave may block this service; try Chrome or Edge, or turn off Brave Shields for this site. Your audio recording can still be saved.'
+    case 'language-not-supported':
+      return 'Live transcription is not available for this language in your browser. Your audio recording can still be saved.'
     default:
-      return 'Speech recognition could not start. Please try recording again.'
+      return 'Live transcription is unavailable right now. Your audio recording can still be saved.'
   }
+}
+
+function getRecordingErrorMessage(error: unknown) {
+  if (error instanceof DOMException) {
+    if (error.name === 'NotAllowedError') {
+      return 'Microphone access was blocked, so audio could not be saved. Allow microphone access and try again.'
+    }
+    if (error.name === 'NotFoundError') {
+      return 'No microphone was found. Connect one and try again.'
+    }
+  }
+
+  return 'Your audio could not be saved in this browser. Try Chrome or Edge and allow microphone access.'
 }
 
 export default function Exercise() {
@@ -59,6 +83,8 @@ export default function Exercise() {
   const navigate = useNavigate()
 
   const data = selectedExercise ? (exerciseData[selectedExercise] || exerciseData['rabbit']) : exerciseData['rabbit']
+  const isSentence = ['s1', 's2', 's3', 's4', 'hs1', 'hs2', 'hs3'].includes(selectedExercise || '')
+  const pronunciationText = pronunciationExamples[selectedExercise || ''] || data.label
 
   const [stage, setStage] = useState<Stage>('listen')
   const [playing, setPlaying] = useState(false)
@@ -69,20 +95,49 @@ export default function Exercise() {
   const [transcript, setTranscript] = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')
   const [speechError, setSpeechError] = useState<string | null>(null)
+  const [recordingError, setRecordingError] = useState<string | null>(null)
+  const [playbackError, setPlaybackError] = useState<string | null>(null)
+  const [recordingUrl, setRecordingUrl] = useState<string | null>(null)
   const [isListening, setIsListening] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const mediaStreamRef = useRef<MediaStream | null>(null)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
   const recordingRef = useRef(false)
   const finalTranscriptRef = useRef('')
+  const recordingUrlRef = useRef<string | null>(null)
   const recognitionSessionRef = useRef(0)
+  const recordingSessionRef = useRef(0)
 
   const speechRecognitionSupported =
     typeof window !== 'undefined' &&
     Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
+  const localRecordingSupported =
+    typeof navigator !== 'undefined' &&
+    Boolean(navigator.mediaDevices?.getUserMedia) &&
+    typeof MediaRecorder !== 'undefined'
+  const canRecord = speechRecognitionSupported || localRecordingSupported
 
   const playAudio = () => {
-    setPlaying(true)
-    setTimeout(() => setPlaying(false), 2000)
+    const textToSpeak = pronunciationText
+    const langCode = lang === 'hindi' ? 'hi-IN' : 'en-US'
+
+    if (typeof window !== 'undefined' && typeof window.speechSynthesis !== 'undefined') {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(textToSpeak)
+      utterance.lang = langCode
+      utterance.rate = 0.95
+      utterance.pitch = 1
+      utterance.onend = () => setPlaying(false)
+      utterance.onerror = () => setPlaying(false)
+      utteranceRef.current = utterance
+      setPlaying(true)
+      window.speechSynthesis.speak(utterance)
+    } else {
+      setPlaying(true)
+      setTimeout(() => setPlaying(false), 2000)
+    }
   }
 
   const clearRecordingTimer = () => {
@@ -218,6 +273,10 @@ export default function Exercise() {
         // Recognition has already ended.
       }
     }
+
+    if (typeof window !== 'undefined' && typeof window.speechSynthesis !== 'undefined') {
+      window.speechSynthesis.cancel()
+    }
   }, [])
 
   const submit = () => navigate('/result')
@@ -257,8 +316,6 @@ export default function Exercise() {
     event.preventDefault()
     stopRecording()
   }
-
-  const isSentence = ['s1', 's2', 's3', 's4', 'hs1', 'hs2', 'hs3'].includes(selectedExercise || '')
 
   return (
     <div className="p-5 pb-24 max-w-lg mx-auto">
