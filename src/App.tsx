@@ -9,7 +9,6 @@ import ExerciseList from './screens/ExerciseList'
 import Exercise from './screens/Exercise'
 import Result from './screens/Result'
 import Videos from './screens/Videos'
-import Progress from './screens/Progress'
 import Profile from './screens/Profile'
 
 function AppShell() {
