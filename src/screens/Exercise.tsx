@@ -38,15 +38,6 @@ type Stage = 'listen' | 'record' | 'review'
 
 const maxRecordingSeconds = 8
 
-const pronunciationExamples: Record<string, string> = {
-  R: 'Rabbit',
-  L: 'Lion',
-  S: 'Sun',
-  SH: 'Ship',
-  CH: 'Chair',
-  TH: 'Think',
-}
-
 function getSpeechErrorMessage(error: string) {
   switch (error) {
     case 'not-allowed':
@@ -84,7 +75,7 @@ export default function Exercise() {
 
   const data = selectedExercise ? (exerciseData[selectedExercise] || exerciseData['rabbit']) : exerciseData['rabbit']
   const isSentence = ['s1', 's2', 's3', 's4', 'hs1', 'hs2', 'hs3'].includes(selectedExercise || '')
-  const pronunciationText = pronunciationExamples[selectedExercise || ''] || data.label
+  const pronunciationText = data.label
 
   const [stage, setStage] = useState<Stage>('listen')
   const [playing, setPlaying] = useState(false)
